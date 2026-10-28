@@ -1,0 +1,54 @@
+# Configuração Enterprise do API Gateway (Catálogo 2.2)
+listen: "127.0.0.1:8080"
+# admin_listen: "127.0.0.1:8081" # se omitido, /health e /metrics na mesma porta
+drain_timeout_ms: 5000
+
+health_check:
+  interval_ms: 5000
+  timeout_ms: 500
+  path: "/__gw_health"
+  passive_failure_threshold: 2
+
+routes:
+  - name: echo
+    path_prefix: /echo
+    strip_prefix: true
+    algorithm: p2c_ewma
+    canary_weight: 100
+    upstreams:
+      - "http://127.0.0.1:9001"
+      - "http://127.0.0.1:9002"
+    rate_limit:
+      capacity: 50
+      refill_per_sec: 10
+      key: ip
+    auth:
+      type: api_key
+      header: X-API-Key
+      keys:
+        - "dev-key-change-me"
+    circuit_breaker:
+      failure_threshold: 5
+      open_ms: 5000
+      half_open_success: 1
+    adaptive_concurrency:
+      target_latency_ms: 50
+      min_limit: 10
+      max_limit: 500
+    retry:
+      max_retries: 2
+      base_backoff_ms: 20
+      max_backoff_ms: 200
+    cors:
+      allow_origins: ["*"]
+      allow_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allow_headers: ["Content-Type", "Authorization", "X-API-Key", "X-Request-Id"]
+      max_age_secs: 86400
+    timeout_ms: 10000
+
+  - name: public
+    path_prefix: /public
+    strip_prefix: true
+    algorithm: least_conn
+    upstreams:
+      - "http://127.0.0.1:9003"

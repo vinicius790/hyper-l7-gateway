@@ -1,0 +1,7 @@
+listen: "127.0.0.1:8080"
+routes:
+  - name: backend
+    path_prefix: /api
+    strip_prefix: true
+    upstreams:
+      - "http://127.0.0.1:3000"

@@ -1,0 +1,42 @@
+[package]
+name = "api-gateway"
+version = "0.2.0"
+edition = "2021"
+authors = ["Vinícius Fernandes <catalog@example.com>"]
+description = "API Gateway / Reverse Proxy L7 de alta performance: Zero-Copy Streaming, HTTP/2, P2C-EWMA, JWT HS256, Circuit Breaker, Load Shedding e W3C Tracing"
+license = "MIT"
+readme = "README.md"
+keywords = ["api-gateway", "reverse-proxy", "rate-limit", "circuit-breaker", "envoy"]
+categories = ["network-programming", "web-programming::http-server"]
+
+[[bin]]
+name = "api-gateway"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "sync", "io-util", "signal", "fs"] }
+hyper = { version = "1", features = ["server", "client", "http1", "http2"] }
+hyper-util = { version = "0.1", features = ["tokio", "server-auto", "client-legacy", "http1", "http2", "service"] }
+http-body-util = "0.1"
+bytes = "1"
+http = "1"
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+thiserror = "1"
+uuid = { version = "1", features = ["v4"] }
+parking_lot = "0.12"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+clap = { version = "4", features = ["derive"] }
+base64 = "0.22"
+serde_json = "1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "sync", "test-util"] }
+tempfile = "3"
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
